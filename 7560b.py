@@ -1,4 +1,4 @@
-import subprocess, json, time, re
+import subprocess, json, time, sys, re
 from multiprocessing import Queue
 from threading import Thread
 
@@ -30,9 +30,8 @@ class Latency:
             parsed,result,lastByte = self.fpingSource(data['server'],data['ip'])
             outQueue.put({"parsed":parsed,"result":result,"lastByte":lastByte,"ip":data['ip'],"server":data['server']})
 
-    def debug(self):
+    def debug(self,ips):
         results = {}
-        ips = input("IP: ")
         ips = ips.split(",")
         for ip in ips:
             print("Running fping for",ip)
@@ -81,4 +80,4 @@ class Latency:
             print(ip,points)
 
 Latency = Latency()
-Latency.debug()
+Latency.debug(sys.argv[1])
