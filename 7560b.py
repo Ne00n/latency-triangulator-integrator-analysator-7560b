@@ -31,32 +31,54 @@ class Latency:
             outQueue.put({"parsed":parsed,"result":result,"lastByte":lastByte,"ip":data['ip'],"server":data['server']})
 
     def debug(self):
-        ip = input("IP: ")
-        print("Running fping")
-        count,queue,outQueue = 0,Queue(),Queue()
-        for server in self.machina:
-            queue.put({"server":server,"ip":ip})
-        threads = [Thread(target=self.fpingWorker, args=(queue,outQueue,)) for _ in range(int(len(self.machina) / 2))]
-        for thread in threads:
-            thread.start()
         results = {}
-        while len(self.machina) != count:
-            while not outQueue.empty():
-                data = outQueue.get()
-                if data['parsed']:
-                    results[data['server']] = self.getAvrg(data['parsed'])
-                else:
-                    print(data['ip']+" is not reachable via "+data['server'])
-                count += 1
-            time.sleep(0.05)
-        for thread in threads:
-            thread.join()
-        results = {k: results[k] for k in sorted(results, key=results.get)}
-        print("--- Top 10 ---")
-        count = 0
-        for server, latency in results.items():
-            if count <= 10: print('Got %.2f' %latency,"from",server)
-            count = count +1
+        ips = input("IP: ")
+        ips = ips.split(",")
+        for ip in ips:
+            print("Running fping for",ip)
+            count,queue,outQueue = 0,Queue(),Queue()
+            for server in self.machina:
+                queue.put({"server":server,"ip":ip})
+            threads = [Thread(target=self.fpingWorker, args=(queue,outQueue,)) for _ in range(int(len(self.machina) / 2))]
+            for thread in threads:
+                thread.start()
+            while len(self.machina) != count:
+                while not outQueue.empty():
+                    data = outQueue.get()
+                    if data['parsed']:
+                        if not ip in results: results[ip] = {}
+                        results[ip][data['server']] = self.getAvrg(data['parsed'])
+                    else:
+                        print(data['ip']+" is not reachable via "+data['server'])
+                    count += 1
+                time.sleep(0.05)
+            for thread in threads:
+                thread.join()
+            results[ip] = {k: results[ip][k] for k in sorted(results[ip], key=results[ip].get)}
+            print("--- Top 10 ---")
+            count = 0
+            for server, latency in results[ip].items():
+                if count <= 10: print('Got %.2f' %latency,"from",server)
+                count = count +1
+
+        loc = {}
+        for ip,locations in results.items():
+            for location,data in locations.items():
+                if location not in loc: loc[location] = {}
+                loc[location][ip] = data
+                loc[location] = {k: v for k, v in sorted(loc[location].items(), key=lambda item: item[1])}
+
+        score = {}
+        for location, data in loc.items():
+            count = len(data)
+            for ip, latency in data.items():
+                if ip not in score: score[ip] = 0
+                score[ip] = score[ip] + count
+                count = count -1
+
+        print("--- Score ---")
+        for ip, points in score.items():
+            print(ip,points)
 
 Latency = Latency()
 Latency.debug()
