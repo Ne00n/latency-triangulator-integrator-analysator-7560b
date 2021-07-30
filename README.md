@@ -1,1 +1,1 @@
-# latency-triangulator-integrator-7560b
+# latency-triangulator-integrator-analysator-7560b
