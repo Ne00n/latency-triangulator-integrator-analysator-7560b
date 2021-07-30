@@ -75,6 +75,8 @@ class Latency:
                 score[ip] = score[ip] + count
                 count = count -1
 
+        score = {k: v for k, v in sorted(score.items(), key=lambda item: item[1])}
+
         print("--- Score ---")
         for ip, points in score.items():
             print(ip,points)
