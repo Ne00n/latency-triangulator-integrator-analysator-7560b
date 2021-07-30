@@ -21,7 +21,7 @@ class Latency:
     def fpingSource(self,server,ip):
         lastByte = re.findall("^([0-9.]+)\.([0-9]+)",server, re.MULTILINE | re.DOTALL)
         result = self.cmd("ssh root@"+server+" fping -c5 "+ip)[0]
-        parsed = re.findall("([0-9.]+).*?([0-9]+.[0-9]).*?([0-9])% loss",result, re.MULTILINE)
+        parsed = re.findall("([0-9.:a-z]+).*?([0-9]+.[0-9]).*?([0-9])% loss",result, re.MULTILINE)
         return parsed,result,lastByte
 
     def fpingWorker(self,queue,outQueue):
