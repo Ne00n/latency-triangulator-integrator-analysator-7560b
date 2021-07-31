@@ -14,3 +14,11 @@ Rename machina.example.json to machina.json and fill it up<br />
 ```
 python3 7560b.py 1.1.1.1,8.8.8.8
 ```
+
+Would give you:
+
+```
+--- Score ---
+8.8.8.8 53
+1.1.1.1 55
+```
