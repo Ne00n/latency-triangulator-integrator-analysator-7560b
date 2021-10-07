@@ -30,6 +30,11 @@ class Latency:
             parsed,result,lastByte = self.fpingSource(data['server'],data['ip'])
             outQueue.put({"parsed":parsed,"result":result,"lastByte":lastByte,"ip":data['ip'],"server":data['server']})
 
+    def shortIP(self,ip):
+        if "." in ip: cut = ip.split(".")
+        else: cut = ip.split(":")
+        return cut[len(cut) -1]
+
     def debug(self,ips):
         results = {}
         ips = ips.split(",")
@@ -68,18 +73,25 @@ class Latency:
                 loc[location] = {k: v for k, v in sorted(loc[location].items(), key=lambda item: item[1])}
 
         score = {}
+        print("--- Top Locations ---")
         for location, data in loc.items():
             count = len(data)
+            diff = 0
             for ip, latency in data.items():
                 if ip not in score: score[ip] = 0
                 score[ip] = score[ip] + count
+                if count == len(data):
+                    diff = latency
+                elif count +1 == len(data):
+                    diff = latency - diff
+                    print(location,f"Diff by {diff:.2f}ms",self.shortIP(list(data.keys())[0]),self.shortIP(ip))
                 count = count -1
 
         score = {k: v for k, v in sorted(score.items(), key=lambda item: item[1])}
 
         print("--- Score ---")
         for ip, points in score.items():
-            print(ip,points)
+            print(points,ip)
 
 Latency = Latency()
 Latency.debug(sys.argv[1])
