@@ -54,10 +54,10 @@ class Latency:
             for thread in threads:
                 thread.join()
             results[ip] = {k: results[ip][k] for k in sorted(results[ip], key=results[ip].get)}
-            print("--- Top 10 ---")
+            print("--- Top 35 ---")
             count = 0
             for server, latency in results[ip].items():
-                if count <= 10: print('Got %.2f' %latency,"from",server)
+                if count <= 35: print('Got %.2f' %latency,"from",server)
                 count = count +1
 
         loc = {}
