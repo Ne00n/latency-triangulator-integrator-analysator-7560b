@@ -72,21 +72,18 @@ class Latency:
                 loc[location][ip] = data
                 loc[location] = {k: v for k, v in sorted(loc[location].items(), key=lambda item: item[1])}
 
-        score = {}
+        score,best = {},{}
         print("--- Top Locations ---")
         for location, data in loc.items():
-            count = len(data)
-            diff = 0
+            best[location] = {"latency":0,"diff":0}
             for ip, latency in data.items():
                 if ip not in score: score[ip] = 0
-                score[ip] = score[ip] + count
-                if count == len(data):
-                    diff = latency
-                elif count +1 == len(data):
-                    diff = latency - diff
-                    print(location,f"Diff by {diff:.2f}ms",self.shortIP(list(data.keys())[0]),self.shortIP(ip))
-                count = count -1
-
+                if best[location]['latency'] == 0 or latency < best[location]['latency']:
+                    best[location]['latency'],best[location]['ip'] = latency,ip
+                if latency > best[location]['latency']:
+                    best[location]['diff'] = latency - best[location]['latency']
+            score[best[location]['ip']] += 1    
+            print(location,f"Diff by {best[location]['diff']:.2f}ms {best[location]['ip']}")
         score = {k: v for k, v in sorted(score.items(), key=lambda item: item[1])}
 
         print("--- Score ---")
